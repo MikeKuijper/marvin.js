@@ -4,6 +4,7 @@ class neuron {
     this.neuron = parseInt(neuronnr);
     this.weight = [];
     this.bias = [];
+    this.activation = 0;
   }
 
   setWeight(input, input2) {
@@ -21,7 +22,7 @@ class neuron {
   }
 
   addBias(input) {
-    this.bias.push(input);
+    this.bias.push(parseFloat(input));
   }
 
   log() {
@@ -50,8 +51,8 @@ class network {
       for (let j = 0; j < _amount; j++) {
         let _n = new neuron(i, j);
         for (let k in this.neurons[i - 1]) {
-          _n.addWeight(1);
-          _n.addBias(0);
+          _n.addWeight(2);
+          _n.addBias(1);
         }
         _layer.push(_n);
       }
@@ -62,9 +63,8 @@ class network {
   log() {
     for (let layernr in this.neurons) {
       for (let neuronnr in this.neurons[layernr]) {
-          let n = this.neurons[layernr][neuronnr];
-          console.log(n);
-          n.log();
+        let n = this.neurons[layernr][neuronnr];
+        n.log();
       }
     }
   }
@@ -89,22 +89,35 @@ class network {
     }
     if (error) process.exit();
 
-    let result = [];
-    // for (let i in this.neurons[this.neurons.length - 1]) {
-    //   let layer = this.neurons.length - 1;
-    //   let neuron = i;
-    //
-    // }
     for (let i in this.neurons[0]) {
       let current = this.neurons[0][i];
-      current = input[i];
-      this.log();
+      current.activation = input[i];
     }
+    //this.log();
+    for (let j = 1; j < this.neurons.length; j++) {
+      for (let k in this.neurons[j]) {
+        let current = this.neurons[j][k];
+
+        let layernr = current.layer;
+        let neuronnr = current.neuron;
+
+        let total = 0;
+        for (let l in current.weight) {
+          total += current.weight[l] * this.neurons[j - 1][l].activation;
+        }
+        total += parseFloat(current.bias);
+        current.activation = normalize(total);
+      }
+    }
+    //this.log();
+
+    return this.neurons[this.neurons.length - 1];
   }
 }
 
 function normalize(input) {
-  return 1 / (1 + Math.pow(Math.E, -input));
+  return input;
+  //return 1 / (1 + Math.pow(Math.E, -input));
 }
 
 module.exports.neuron = neuron;
