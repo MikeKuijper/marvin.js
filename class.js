@@ -98,6 +98,7 @@ class network {
     for (let i in this.neurons[0]) {
       let current = this.neurons[0][i];
       current = input[i];
+      this.log();
     }
   }
 }
