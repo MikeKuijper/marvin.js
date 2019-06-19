@@ -1,0 +1,11 @@
+{
+  "name": "neuralnetwork",
+  "version": "1.0.0",
+  "description": "neuralnetwork from scratch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mike Kuijper",
+  "license": "ISC"
+}
