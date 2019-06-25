@@ -16,7 +16,6 @@ class neuron {
     this.weight = [];
     this.bias = [];
     this.activation = 0;
-    //this.previousActivation = null;
   }
 
   setWeight(input, input2) {
@@ -34,9 +33,6 @@ class neuron {
 
   log() {
     console.log(this);
-    //console.log(`neuron [${this.layer}, ${this.neuron}]:`);
-    //console.log(`   weight: ${this.weight}`);
-    //console.log(`   bias:   ${this.bias}`);
   }
 }
 
@@ -69,6 +65,7 @@ class network {
           _n.addWeight(Math.random() * 2 - 1);
         }
         _n.bias = (Math.random() * 2 - 1);
+        // _n.bias = 0;
         _layer.push(_n);
       }
       this.network.push(_layer);
@@ -151,30 +148,19 @@ class network {
     this.network[n2.layer][n2.neuron].weight[n.neuron] = num;
   }
 
-
   train(input, expectedOutput) {
-    if (!expectedOutput) expectedOutput = 1;
-    // get cost
     let res = this.feed(input);
 
     let cost = 0;
-    // for (let i in res) {
-    //   if (i == expectedOutputNeuron) {
-    //     cost += Math.pow((res[i] - 1), 2);
-    //   } else {
-    //     cost += Math.pow(res[i], 2);
-    //   }
-    // }
-
-    //let cost;
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
       let grad = deriveNormalize(n.activation);
       let error = expectedOutput[neuronnr] - n.activation;
       n.error = grad * error;
+      cost += Math.abs(error);
       n.bias += this.learningRate * n.error;
-      cost += Math.abs(n.error);
     }, -1);
+    //console.log(cost);
     this.cost = cost;
 
     this.forAllNeurons((layernr, neuronnr) => {
@@ -191,7 +177,8 @@ class network {
         currentNeuron.bias += this.learningRate * currentNeuron.error;
 
         for (let index in nextLayer) {
-          let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
+          let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * deriveNormalize(currentNeuron.activation);
+          // let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
           // nextLayer[index].weight[currentNeuron.neuron] = w;
           this.setWeight(nextLayer[index], currentNeuron, w);
         }
@@ -264,7 +251,7 @@ class network {
     // }
     // }
 
-    return cost;
+    return this.cost;
   }
 
   feed(input) {
