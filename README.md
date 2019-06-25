@@ -1,7 +1,7 @@
 Marvin.js
 =======
 
-![Marvin gif from A Hitchhiker's Guide To The Galaxy][https://media.giphy.com/media/ibI6pMtGf5tnO/giphy.gif]
+![Marvin gif from A Hitchhiker's Guide To The Galaxy](https://media.giphy.com/media/ibI6pMtGf5tnO/giphy.gif)
 
 # What exactly is Marvin.js?
 Marvin.js is a fully open-source JavaScript neural network library. You can use it to create neural network implementations with ease!
