@@ -9,6 +9,10 @@
 //let config = require("./config.json");
 //let math = require("mathjs");
 
+const normalizingMethods = {
+  SIGMOID: 1
+};
+
 class neuron {
   constructor(layernr, neuronnr) {
     this.layer = parseInt(layernr);
@@ -37,6 +41,7 @@ class neuron {
 }
 
 class network {
+
   constructor(structure, lr) {
     // Error handling
     let error = false;
@@ -49,6 +54,8 @@ class network {
       error = true;
     }
     if (error) process.exit();
+
+    this.normalizingMethod = normalizingMethods.SIGMOID;
 
     if (lr) this.learningRate = lr;
     else this.learningRate = 1;
@@ -118,7 +125,7 @@ class network {
     if (!backwards) {
       for (let i in this.network) {
         for (let j in this.network[i]) {
-          f(i, j);
+          f(parseInt(i), parseInt(j));
         }
       }
     } else {
@@ -150,14 +157,16 @@ class network {
 
   train(input, expectedOutput) {
     let res = this.feed(input);
+    this.globalError = 0;
 
     let cost = 0;
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
-      let grad = deriveNormalize(n.activation);
+      let grad = this.deriveNormalize(n.activation);
       let error = expectedOutput[neuronnr] - n.activation;
       n.error = grad * error;
       cost += Math.abs(error);
+      this.globalError += Math.abs(error);
       n.bias += this.learningRate * n.error;
     }, -1);
     //console.log(cost);
@@ -165,91 +174,26 @@ class network {
 
     this.forAllNeurons((layernr, neuronnr) => {
       let currentNeuron = this.getNeuron(layernr, neuronnr);
-      if (layernr + 1 <= this.network.length) {
+      if (layernr + 1 < this.network.length) {
         let nextLayer = this.getLayer(layernr + 1);
 
         let sum = 0;
         for (let index in nextLayer) {
-          sum += this.getWeight(nextLayer[index], currentNeuron) * nextLayer[index].error;
+          sum += this.getWeight(currentNeuron, nextLayer[index]) * nextLayer[index].error;
         }
 
-        currentNeuron.error = sum * deriveNormalize(currentNeuron.activation);
+        currentNeuron.error = sum * this.deriveNormalize(currentNeuron.activation);
+        this.globalError += Math.abs(currentNeuron.error);
         currentNeuron.bias += this.learningRate * currentNeuron.error;
 
         for (let index in nextLayer) {
-          let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * deriveNormalize(currentNeuron.activation);
+          let w = this.getWeight(currentNeuron, nextLayer[index]) + this.learningRate * nextLayer[index].error * this.deriveNormalize(currentNeuron.activation);
           // let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
           // nextLayer[index].weight[currentNeuron.neuron] = w;
-          this.setWeight(nextLayer[index], currentNeuron, w);
+          this.setWeight(currentNeuron, nextLayer[index], w);
         }
       }
     }, false);
-
-    // this.forAllNeurons((layernr, neuronnr) => {
-    //   let currentNeuron = this.getNeuron(layernr, neuronnr);
-    //   if (layernr - 1 >= 0) {
-    //     let nextLayer = this.getLayer(layernr - 1);
-    //
-    //   }
-    // }, true);
-
-    // for (let j in this.network[layernr - 1]) {
-    //   let previousNeuron = this.network[layernr - 1][j];
-    //   let isCorrect = (neuronnr == expectedOutputNeuron && layernr + 1 == this.network.length) || (layernr + 1 != this.network.length && currentNeuron.weight[j] > 0);
-    //   let error, delta, target;
-    //   for (let k in currentNeuron.weight) {
-    //     //console.log(`[${layernr}, ${neuronnr}] => [${layernr -1}, ${j}]:   ${isCorrect}`);
-    //     if (isCorrect) {
-    //       if (layernr + 1 == this.network.length) target = expectedOutput;
-    //       else target = 1;
-    //       error = (target - previousNeuron.activation);
-    //       // For example: 1 - 0.8 = 0.2, so it should increase by 0.2
-    //     } else {
-    //       target = 0;
-    //       error = (target - previousNeuron.activation);
-    //       // For example: 0 - 0.4 = -0.4, so it should decrease by 0.4
-    //     }
-    //     delta = error * deriveNormalize(currentNeuron.previousActivation);
-    //     //let delta = error * deriveNormalize(previousNeuron.activation) * config.learningRate;
-    //     //let outputToUse;
-    //     //if (layernr == this.network.length - 1) outputToUse = input[neuronnr];
-    //     //else outputToUse = previousNeuron.previousActivation;
-    //     currentNeuron.weight[k] += delta * previousNeuron.previousActivation * config.learningRate;
-    //console.log(delta);
-    // }
-    // }
-    // }, true);
-
-    // Average desired changes
-    // let averaged = [];
-    // for (let m in delta[0]) {
-    //   let layer = [];
-    //   for (let n in delta[m]) {
-    //     let r;
-    //     let freq = 0;
-    //     let total = 0;
-    //     for (let o in delta[0]) {
-    //       freq++;
-    //       if (delta[m][o][n]) total += delta[m][o][n];
-    //     }
-    //     if (freq != 0) {
-    //       r = total / freq;
-    //       layer.push(r);
-    //     }
-    //   }
-    //   averaged.push(layer);
-    // }
-    //
-    // // Apply desired changes
-    // for (let p in this.network) {
-    //   for (let q in this.network[this.network.length - p - 1]) {
-    //     let current = this.network[this.network.length - p - 1][q];
-    //     for (let s in current.weight) {
-    //       let val = averaged[p][q] * config.learningRate;
-    //       current.weight[s] += val;
-    //     }
-    // }
-    // }
 
     return this.cost;
   }
@@ -287,7 +231,7 @@ class network {
         }
         total += parseFloat(current.bias);
         //current.previousActivation = current.activation;
-        current.activation = normalize(total);
+        current.activation = this.normalize(total);
       }
     });
 
@@ -298,17 +242,30 @@ class network {
     }, -1)
     return res;
   }
-}
 
-function normalize(input) {
-  return 1 / (1 + Math.pow(Math.E, -input));
-}
+  normalize(input) {
+    switch (this.normalizingMethod) {
+      case normalizingMethods.SIGMOID:
+        return 1 / (1 + Math.pow(Math.E, -input));
+        break;
+      default:
+        console.error("Invalid normalizing method");
+        process.exit();
+    }
+  }
 
-function deriveNormalize(input) {
-  return input * (1 - input);
+  deriveNormalize(input) {
+    switch (this.normalizingMethod) {
+      case normalizingMethods.SIGMOID:
+        return input * (1 - input);
+        break;
+        default:
+        console.error("Invalid normalizing method");
+        process.exit();
+    }
+  }
 }
 
 // Export classes
 module.exports.neuron = neuron;
 module.exports.network = network;
-module.exports.normalize = normalize;
