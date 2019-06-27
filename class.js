@@ -1,13 +1,6 @@
 //Todo:
-//Add expectedOutputCell and expectedOutput to network.train
-//Proportional to weight
-//This.forallneurons
-//fix line 97 if (j != this.network.length - 1) {
-//fix input layer having bias
-//fix backprop for more than 2 layers
-
-//let config = require("./config.json");
-//let math = require("mathjs");
+// Add support for different things than numbers (like text, audio, image/video, etc.)
+// Add different normalizing methods
 
 const normalizingMethods = {
   SIGMOID: 1
@@ -20,6 +13,7 @@ class neuron {
     this.weight = [];
     this.bias = [];
     this.activation = 0;
+    this.lastActivation = 0;
   }
 
   setWeight(input, input2) {
@@ -90,6 +84,8 @@ class network {
   }
 
   getNeuron(layernr, neuronnr) {
+    layernr = parseInt(layernr);
+    neuronnr = parseInt(neuronnr);
     let error = false;
     if (layernr >= this.network.length) {
       console.error(`Layer ${layernr} doesn't exist`);
@@ -103,6 +99,7 @@ class network {
   }
 
   getLayer(layernr) {
+    layernr = parseInt(layernr);
     if (layernr > this.network.length - 1) console.error("That layer doesn't exist");
     if (layernr < 0) layernr = this.network.length + layernr;
     if (layernr < -this.network.length);
@@ -112,11 +109,11 @@ class network {
   forAllLayers(f, backwards) {
     if (!backwards) {
       for (let i in this.network) {
-        f(i);
+        f(parseInt(i));
       }
     } else {
       for (let i in this.network) {
-        f(this.network.length - 1 - i);
+        f(parseInt(this.network.length - 1 - i));
       }
     }
   }
@@ -158,28 +155,26 @@ class network {
   train(input, expectedOutput) {
     let res = this.feed(input);
     this.globalError = 0;
-
     let cost = 0;
+
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
       let grad = this.deriveNormalize(n.activation);
       let error = expectedOutput[neuronnr] - n.activation;
       n.error = grad * error;
       cost += Math.abs(error);
-      this.globalError += Math.abs(error);
       n.bias += this.learningRate * n.error;
     }, -1);
-    //console.log(cost);
     this.cost = cost;
 
     this.forAllNeurons((layernr, neuronnr) => {
       let currentNeuron = this.getNeuron(layernr, neuronnr);
-      if (layernr + 1 < this.network.length) {
+      if (layernr <= this.network.length - 2) {
         let nextLayer = this.getLayer(layernr + 1);
 
         let sum = 0;
-        for (let index in nextLayer) {
-          sum += this.getWeight(currentNeuron, nextLayer[index]) * nextLayer[index].error;
+        for (let i in nextLayer) {
+          sum += this.getWeight(currentNeuron, nextLayer[i]) * nextLayer[i].error;
         }
 
         currentNeuron.error = sum * this.deriveNormalize(currentNeuron.activation);
@@ -187,15 +182,25 @@ class network {
         currentNeuron.bias += this.learningRate * currentNeuron.error;
 
         for (let index in nextLayer) {
-          let w = this.getWeight(currentNeuron, nextLayer[index]) + this.learningRate * nextLayer[index].error * this.deriveNormalize(currentNeuron.activation);
-          // let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
-          // nextLayer[index].weight[currentNeuron.neuron] = w;
+          let w = this.getWeight(currentNeuron, nextLayer[index]) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
           this.setWeight(currentNeuron, nextLayer[index], w);
         }
       }
-    }, false);
+    }, true);
 
     return this.cost;
+  }
+
+  autoTrain(inputArray, expectedOutputArray) {
+    if (expectedOutputArray) {
+      for (let i in inputArray) {
+        this.train(inputArray[i], expectedOutputArray[i]);
+      }
+    } else {
+      for (let i in inputArray) {
+        this.train(inputArray[i][0], inputArray[i][1]);
+      }
+    }
   }
 
   feed(input) {
@@ -230,7 +235,7 @@ class network {
           total += current.weight[l] * this.getLayer(layernr - 1)[l].activation;
         }
         total += parseFloat(current.bias);
-        //current.previousActivation = current.activation;
+        current.lastActivation = current.activation;
         current.activation = this.normalize(total);
       }
     });
@@ -259,11 +264,17 @@ class network {
       case normalizingMethods.SIGMOID:
         return input * (1 - input);
         break;
-        default:
+      default:
         console.error("Invalid normalizing method");
         process.exit();
     }
   }
+}
+
+function sum(array) {
+  return Array.reduce(function(sum, i) {
+    return sum + i;
+  }, 0)
 }
 
 // Export classes
