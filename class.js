@@ -1,9 +1,13 @@
 //Todo:
 // Add support for different things than numbers (like text, audio, image/video, etc.)
-// Add different normalizing methods
+// Fix 3, 4, 3, 3 error
 
-const normalizingMethods = {
-  SIGMOID: 1
+const fs = require('fs');
+
+const activationFunctions = {
+  SIGMOID: 1,
+  TANH: 2,
+  RELU: 3
 };
 
 class neuron {
@@ -49,7 +53,7 @@ class network {
     }
     if (error) process.exit();
 
-    this.normalizingMethod = normalizingMethods.SIGMOID;
+    this.activationFunction = activationFunctions.SIGMOID;
 
     if (lr) this.learningRate = lr;
     else this.learningRate = 1;
@@ -127,7 +131,7 @@ class network {
       }
     } else {
       for (let i in this.network) {
-        for (let j in this.network[i]) {
+        for (let j in this.network[this.network.length - 1 - i]) {
           f(parseInt(this.network.length - 1 - i), parseInt(j));
         }
       }
@@ -249,9 +253,15 @@ class network {
   }
 
   normalize(input) {
-    switch (this.normalizingMethod) {
-      case normalizingMethods.SIGMOID:
+    switch (this.activationFunction) {
+      case activationFunctions.SIGMOID:
         return 1 / (1 + Math.pow(Math.E, -input));
+        break;
+      case activationFunctions.TANH:
+        return 2 / (1 + Math.pow(Math.E, -2 * input));
+        break;
+      case activationFunctions.RELU:
+        Math.max(input, 0);
         break;
       default:
         console.error("Invalid normalizing method");
@@ -260,23 +270,28 @@ class network {
   }
 
   deriveNormalize(input) {
-    switch (this.normalizingMethod) {
-      case normalizingMethods.SIGMOID:
+    switch (this.activationFunction) {
+      case activationFunctions.SIGMOID:
         return input * (1 - input);
+        break;
+      case activationFunctions.TANH:
+        return 1 - Math.pow((2 / (1 + Math.pow(Math.E, -2 * input))), 2);
+        break;
+      case activationFunctions.RELU:
+        return input;
         break;
       default:
         console.error("Invalid normalizing method");
         process.exit();
     }
   }
-}
 
-function sum(array) {
-  return Array.reduce(function(sum, i) {
-    return sum + i;
-  }, 0)
+  save(filename) {
+    // Save the network to a file
+  }
 }
 
 // Export classes
 module.exports.neuron = neuron;
 module.exports.network = network;
+module.exports.activationFunctions = activationFunctions;
