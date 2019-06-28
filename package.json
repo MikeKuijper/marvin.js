@@ -9,6 +9,6 @@
   "author": "Mike Kuijper",
   "license": "ISC",
   "dependencies": {
-    "mathjs": "^6.0.2"
+    "cli-progress": "^2.1.1"
   }
 }

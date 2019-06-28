@@ -1,5 +1,4 @@
 /node_modules
-class0.js
-class1.js
+class_*.js
 package-lock.json
 package.json

@@ -1,8 +1,5 @@
 //Todo:
 // Add support for different things than numbers (like text, audio, image/video, etc.)
-// Fix 3, 4, 3, 3 error
-
-const fs = require('fs');
 
 const activationFunctions = {
   SIGMOID: 1,
