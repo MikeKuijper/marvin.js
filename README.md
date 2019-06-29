@@ -7,12 +7,12 @@ Marvin.js
 Marvin.js is a fully open-source JavaScript neural network library. You can use it to create neural network implementations with ease!
 
 # What is a neural network?
-A neural network aims to achieve Artificial Intelligence (AI) by creating a network of _neurons_. Now, what does that mean? Basically, a neural network is an imaginary network of layers of _neurons_, nothing more than an object whose output is dependent on the neurons in the previous layer. Once it knows its output, it moves on to the next layer and repeats the process. This way, we can create incredibly complicated mathematical functions than can, for example, identify hand written digits with a high accuracy. 
+A neural network aims to achieve Artificial Intelligence (AI) by creating a network of _neurons_. Now, what does that mean? Basically, a neural network is an imaginary network of layers of _neurons_, nothing more than an object whose output is dependent on the neurons in the previous layer. Once it knows its output, it moves on to the next layer and repeats the process. This way, we can create incredibly complicated mathematical functions than can, for example, identify hand written digits with a high accuracy.
 ## Note:
 1. The first layer is called the input layer. The last is called the output layer.
 2. The input layer is set to the input at the start of the feed.
 3. The output layer is (surprise, surprise) the layer that gets outputted.
-4. Training a network means adjusting the crazy math in order to make the output more like the desired.
+4. Training a network means adjusting the function in order to make the output more like the desired.
 5. The cost of network is a value to reflect how wrong a network is _on average_.
 
 # Marvin.js? You've got to be kidding me!
@@ -50,15 +50,17 @@ Documentation
 | network.log() | Logs the neural network; Useful for debugging |
 | network.getNeuron(layerNumber, neuronNumber) | Returns the neuron object at neuronNumber in layerNumber |
 | network.getLayer(layerNumber) | Returns an array of neurons from the specified layer |
-| network.forAllLayers(function, backwardsBoolean) | Executes a function for every layer. Goes back-to-front if backwardsBoolean is true |
-| network.forAllNeurons(function, backwardsBoolean) | Executes a function for every neuron. Goes back-to-front if backwardsBoolean is true |
+| network.forAllLayers(function, [backwardsBoolean]) | Executes a function for every layer. Goes back-to-front if backwardsBoolean is true |
+| network.forAllNeurons(function, [backwardsBoolean]) | Executes a function for every neuron. Goes back-to-front if backwardsBoolean is true |
 | network.forAllNeuronsInLayer(function, layerNumber) | Executes a function for neuron in the specified layer. |
 | network.getWeight(neuron1, neuron2) | Gets the weight value for the connection between the neurons |
-| network.setWeight(neuron1, neuron2, number) | Gets the weight value of the connection between the neurons |
+| network.setWeight(neuron1, neuron2, number) | Sets the weight value of the connection between the neurons |
 | network.train(input, expectedOutput) | Trains the network. The input is an array of the first layer. The expectedOutput is an array of the expected last layer. Returns the cost |
 | network.feed(input) | Feeds the input into the neural network and returns the last layer |
 | network.normalize(number) | Normalizes the input using the activation function specified in network.activationFunction |
 | network.deriveNormalize(number) | Reverts the input back to a normal number using the activation function specified in network.activationFunction |
+| network.save(path) | Save the network to a file so that you can use it again later |
+| network.load(path, [callbackFunction]) | Load a network from a file. (Optional): Supply a callback function that gets run after the loading process is done |
 
 ## neuron Methods
 | Method | What it does |
@@ -101,11 +103,8 @@ for (let i = 1; i <= iterations; i++) {
 console.log();
 console.log("<<< FINISHED TRAINING >>>")
 console.log("===================");
-let p1 = n.feed([1, 0, 0]);
-console.log(`IN: [1, 0, 0]; EXPECTED OUT: [1, 0, 0]; OUT: [${p1}]`);
-let p2 = n.feed([0, 1, 0]);
+console.log(`IN: [1, 0, 0]; EXPECTED OUT: [1, 0, 0]; OUT: [${n.feed([1, 0, 0])}]`);
 console.log(`IN: [0, 1, 0]; EXPECTED OUT: [0, 1, 0]; OUT: [${n.feed([0, 1, 0])}]`);
-let p3 = n.feed([0, 0, 1]);
 console.log(`IN: [0, 0, 1]; EXPECTED OUT: [0, 0, 1]; OUT: [${n.feed([0, 0, 1])}]`);
 console.log("===================");
 
