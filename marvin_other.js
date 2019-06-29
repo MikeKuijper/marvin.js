@@ -1,13 +1,11 @@
 //Todo:
-//Add expectedOutputCell and expectedOutput to network.train
-//Proportional to weight
-//This.forallneurons
-//fix line 97 if (j != this.network.length - 1) {
-//fix input layer having bias
-//fix backprop for more than 2 layers
+// Add support for different things than numbers (like text, audio, image/video, etc.)
 
-//let config = require("./config.json");
-//let math = require("mathjs");
+const activationFunctions = {
+  SIGMOID: 1,
+  TANH: 2,
+  RELU: 3
+};
 
 class neuron {
   constructor(layernr, neuronnr) {
@@ -16,7 +14,7 @@ class neuron {
     this.weight = [];
     this.bias = [];
     this.activation = 0;
-    //this.previousActivation = null;
+    this.lastActivation = 0;
   }
 
   setWeight(input, input2) {
@@ -34,9 +32,6 @@ class neuron {
 
   log() {
     console.log(this);
-    //console.log(`neuron [${this.layer}, ${this.neuron}]:`);
-    //console.log(`   weight: ${this.weight}`);
-    //console.log(`   bias:   ${this.bias}`);
   }
 }
 
@@ -54,6 +49,8 @@ class network {
     }
     if (error) process.exit();
 
+    this.activationFunction = activationFunctions.SIGMOID;
+
     if (lr) this.learningRate = lr;
     else this.learningRate = 1;
 
@@ -69,6 +66,7 @@ class network {
           _n.addWeight(Math.random() * 2 - 1);
         }
         _n.bias = (Math.random() * 2 - 1);
+        // _n.bias = 0;
         _layer.push(_n);
       }
       this.network.push(_layer);
@@ -86,6 +84,8 @@ class network {
   }
 
   getNeuron(layernr, neuronnr) {
+    layernr = parseInt(layernr);
+    neuronnr = parseInt(neuronnr);
     let error = false;
     if (layernr >= this.network.length) {
       console.error(`Layer ${layernr} doesn't exist`);
@@ -99,6 +99,7 @@ class network {
   }
 
   getLayer(layernr) {
+    layernr = parseInt(layernr);
     if (layernr > this.network.length - 1) console.error("That layer doesn't exist");
     if (layernr < 0) layernr = this.network.length + layernr;
     if (layernr < -this.network.length);
@@ -108,11 +109,11 @@ class network {
   forAllLayers(f, backwards) {
     if (!backwards) {
       for (let i in this.network) {
-        f(i);
+        f(parseInt(i));
       }
     } else {
       for (let i in this.network) {
-        f(this.network.length - 1 - i);
+        f(parseInt(this.network.length - 1 - i));
       }
     }
   }
@@ -121,12 +122,12 @@ class network {
     if (!backwards) {
       for (let i in this.network) {
         for (let j in this.network[i]) {
-          f(i, j);
+          f(parseInt(i), parseInt(j));
         }
       }
     } else {
       for (let i in this.network) {
-        for (let j in this.network[i]) {
+        for (let j in this.network[this.network.length - 1 - i]) {
           f(parseInt(this.network.length - 1 - i), parseInt(j));
         }
       }
@@ -151,120 +152,55 @@ class network {
     this.network[n2.layer][n2.neuron].weight[n.neuron] = num;
   }
 
-
   train(input, expectedOutput) {
-    if (!expectedOutput) expectedOutput = 1;
-    // get cost
     let res = this.feed(input);
-
+    this.globalError = 0;
     let cost = 0;
-    // for (let i in res) {
-    //   if (i == expectedOutputNeuron) {
-    //     cost += Math.pow((res[i] - 1), 2);
-    //   } else {
-    //     cost += Math.pow(res[i], 2);
-    //   }
-    // }
 
-    //let cost;
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
-      let grad = deriveNormalize(n.activation);
+      let grad = this.deriveNormalize(n.activation);
       let error = expectedOutput[neuronnr] - n.activation;
       n.error = grad * error;
+      cost += Math.abs(error);
       n.bias += this.learningRate * n.error;
-      cost += Math.abs(n.error);
     }, -1);
     this.cost = cost;
 
     this.forAllNeurons((layernr, neuronnr) => {
       let currentNeuron = this.getNeuron(layernr, neuronnr);
-      if (layernr + 1 <= this.network.length) {
+      if (layernr <= this.network.length - 2) {
         let nextLayer = this.getLayer(layernr + 1);
 
         let sum = 0;
-        for (let index in nextLayer) {
-          sum += this.getWeight(nextLayer[index], currentNeuron) * nextLayer[index].error;
+        for (let i in nextLayer) {
+          sum += this.getWeight(currentNeuron, nextLayer[i]) * nextLayer[i].error;
         }
 
-        currentNeuron.error = sum * deriveNormalize(currentNeuron.activation);
+        currentNeuron.error = sum * this.deriveNormalize(currentNeuron.activation);
+        this.globalError += Math.abs(currentNeuron.error);
         currentNeuron.bias += this.learningRate * currentNeuron.error;
 
         for (let index in nextLayer) {
-          let w = this.getWeight(nextLayer[index], currentNeuron) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
-          // nextLayer[index].weight[currentNeuron.neuron] = w;
-          this.setWeight(nextLayer[index], currentNeuron, w);
+          let w = this.getWeight(currentNeuron, nextLayer[index]) + this.learningRate * nextLayer[index].error * currentNeuron.activation;
+          this.setWeight(currentNeuron, nextLayer[index], w);
         }
       }
-    }, false);
+    }, true);
 
-    // this.forAllNeurons((layernr, neuronnr) => {
-    //   let currentNeuron = this.getNeuron(layernr, neuronnr);
-    //   if (layernr - 1 >= 0) {
-    //     let nextLayer = this.getLayer(layernr - 1);
-    //
-    //   }
-    // }, true);
+    return this.cost;
+  }
 
-    // for (let j in this.network[layernr - 1]) {
-    //   let previousNeuron = this.network[layernr - 1][j];
-    //   let isCorrect = (neuronnr == expectedOutputNeuron && layernr + 1 == this.network.length) || (layernr + 1 != this.network.length && currentNeuron.weight[j] > 0);
-    //   let error, delta, target;
-    //   for (let k in currentNeuron.weight) {
-    //     //console.log(`[${layernr}, ${neuronnr}] => [${layernr -1}, ${j}]:   ${isCorrect}`);
-    //     if (isCorrect) {
-    //       if (layernr + 1 == this.network.length) target = expectedOutput;
-    //       else target = 1;
-    //       error = (target - previousNeuron.activation);
-    //       // For example: 1 - 0.8 = 0.2, so it should increase by 0.2
-    //     } else {
-    //       target = 0;
-    //       error = (target - previousNeuron.activation);
-    //       // For example: 0 - 0.4 = -0.4, so it should decrease by 0.4
-    //     }
-    //     delta = error * deriveNormalize(currentNeuron.previousActivation);
-    //     //let delta = error * deriveNormalize(previousNeuron.activation) * config.learningRate;
-    //     //let outputToUse;
-    //     //if (layernr == this.network.length - 1) outputToUse = input[neuronnr];
-    //     //else outputToUse = previousNeuron.previousActivation;
-    //     currentNeuron.weight[k] += delta * previousNeuron.previousActivation * config.learningRate;
-    //console.log(delta);
-    // }
-    // }
-    // }, true);
-
-    // Average desired changes
-    // let averaged = [];
-    // for (let m in delta[0]) {
-    //   let layer = [];
-    //   for (let n in delta[m]) {
-    //     let r;
-    //     let freq = 0;
-    //     let total = 0;
-    //     for (let o in delta[0]) {
-    //       freq++;
-    //       if (delta[m][o][n]) total += delta[m][o][n];
-    //     }
-    //     if (freq != 0) {
-    //       r = total / freq;
-    //       layer.push(r);
-    //     }
-    //   }
-    //   averaged.push(layer);
-    // }
-    //
-    // // Apply desired changes
-    // for (let p in this.network) {
-    //   for (let q in this.network[this.network.length - p - 1]) {
-    //     let current = this.network[this.network.length - p - 1][q];
-    //     for (let s in current.weight) {
-    //       let val = averaged[p][q] * config.learningRate;
-    //       current.weight[s] += val;
-    //     }
-    // }
-    // }
-
-    return cost;
+  autoTrain(inputArray, expectedOutputArray) {
+    if (expectedOutputArray) {
+      for (let i in inputArray) {
+        this.train(inputArray[i], expectedOutputArray[i]);
+      }
+    } else {
+      for (let i in inputArray) {
+        this.train(inputArray[i][0], inputArray[i][1]);
+      }
+    }
   }
 
   feed(input) {
@@ -299,8 +235,8 @@ class network {
           total += current.weight[l] * this.getLayer(layernr - 1)[l].activation;
         }
         total += parseFloat(current.bias);
-        //current.previousActivation = current.activation;
-        current.activation = normalize(total);
+        current.lastActivation = current.activation;
+        current.activation = this.normalize(total);
       }
     });
 
@@ -311,17 +247,65 @@ class network {
     }, -1)
     return res;
   }
-}
 
-function normalize(input) {
-  return 1 / (1 + Math.pow(Math.E, -input));
-}
+  normalize(input) {
+    switch (this.activationFunction) {
+      case activationFunctions.SIGMOID:
+        return 1 / (1 + Math.pow(Math.E, -input));
+        break;
+      case activationFunctions.TANH:
+        return 2 / (1 + Math.pow(Math.E, -2 * input));
+        break;
+      case activationFunctions.RELU:
+        Math.max(input, 0);
+        break;
+      default:
+        console.error("Invalid normalizing method");
+        process.exit();
+    }
+  }
 
-function deriveNormalize(input) {
-  return input * (1 - input);
-}
+  deriveNormalize(input) {
+    switch (this.activationFunction) {
+      case activationFunctions.SIGMOID:
+        return input * (1 - input);
+        break;
+      case activationFunctions.TANH:
+        return 1 - Math.pow((2 / (1 + Math.pow(Math.E, -2 * input))), 2);
+        break;
+      case activationFunctions.RELU:
+        return input;
+        break;
+      default:
+        console.error("Invalid normalizing method");
+        process.exit();
+    }
+  }
 
-// Export classes
-module.exports.neuron = neuron;
-module.exports.network = network;
-module.exports.normalize = normalize;
+  async load(path, callback) {
+    let response = await fetch(path);
+    let data = await response.json();
+
+    this.learningRate = data[0].learningRate;
+    this.activationFunction = data[0].activationFunction;
+
+    data.shift();
+
+    this.network = [];
+    for (let i in data) {
+      i = parseInt(i);
+      let _layer = [];
+      for (let j in data[i]) {
+        let _n = new neuron(i, j);
+        _n.weight = data[i][j].weight;
+        _n.bias = data[i][j].bias;
+        _n.lastActivation = data[i][j].lastActivation;
+        _layer.push(_n);
+      }
+      this.network.push(_layer);
+    }
+
+    if (callback) callback();
+    return;
+  }
+}
