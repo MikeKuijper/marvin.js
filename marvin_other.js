@@ -37,39 +37,51 @@ class neuron {
 
 class network {
   constructor(structure, lr) {
-    // Error handling
-    let error = false;
-    if (structure.length < 2) {
-      console.error("The input array should consist of at least 2 entries");
-      error = true;
-    }
-    if (!Array.isArray(structure)) {
-      console.error("Please check if the input is an array");
-      error = true;
-    }
-    if (error) process.exit();
-
-    this.activationFunction = activationFunctions.SIGMOID;
-
-    if (lr) this.learningRate = lr;
-    else this.learningRate = 1;
-
-    // Create network and store in 'this.network'
-    this.network = [];
-    for (let i in structure) {
-      i = parseInt(i);
-      let _amount = structure[i];
-      let _layer = [];
-      for (let j = 0; j < _amount; j++) {
-        let _n = new neuron(i, j);
-        for (let k in this.network[i - 1]) {
-          _n.addWeight(Math.random() * 2 - 1);
+    if (structure) {
+      if (typeof structure == "string") {
+        this.activationFunction = activationFunctions.SIGMOID;
+        this.learningRate = 1;
+        this.network = [];
+        this.load(structure, lr)
+      } else {
+        // Error handling
+        let error = false;
+        if (structure.length < 2) {
+          console.error("The input array should consist of at least 2 entries");
+          error = true;
         }
-        _n.bias = (Math.random() * 2 - 1);
-        // _n.bias = 0;
-        _layer.push(_n);
+        if (!Array.isArray(structure)) {
+          console.error("Please check if the input is an array");
+          error = true;
+        }
+        if (error) process.exit();
+
+        this.activationFunction = activationFunctions.SIGMOID;
+
+        if (lr) this.learningRate = lr;
+        else this.learningRate = 1;
+
+        // Create network and store in 'this.network'
+        this.network = [];
+        for (let i in structure) {
+          i = parseInt(i);
+          let _amount = structure[i];
+          let _layer = [];
+          for (let j = 0; j < _amount; j++) {
+            let _n = new neuron(i, j);
+            for (let k in this.network[i - 1]) {
+              _n.addWeight(Math.random() * 2 - 1);
+            }
+            _n.bias = (Math.random() * 2 - 1);
+            _layer.push(_n);
+          }
+          this.network.push(_layer);
+        }
       }
-      this.network.push(_layer);
+    } else {
+      this.activationFunction = activationFunctions.SIGMOID;
+      this.learningRate = 1;
+      this.network = [];
     }
   }
 
