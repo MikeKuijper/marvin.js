@@ -1,5 +1,8 @@
 //Todo:
 // Add support for different things than numbers (like text, audio, image/video, etc.)
+// Fix tanh and relu
+
+const fs = require("fs");
 
 const activationFunctions = {
   SIGMOID: 1,
@@ -88,12 +91,10 @@ class network {
   }
 
   log() {
-    for (let layernr in this.network) {
-      for (let neuronnr in this.network[layernr]) {
-        let n = this.network[layernr][neuronnr];
-        n.log();
-      }
-    }
+    this.forAllNeurons((layernr, neuronnr) => {
+      let n = this.getNeuron(layernr, neuronnr);
+      n.log();
+    });
   }
 
   getNeuron(layernr, neuronnr) {
@@ -258,7 +259,7 @@ class network {
     let res = [];
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       res.push(parseFloat(this.getLayer(-1)[neuronnr].activation));
-    }, -1)
+    }, -1);
     return res;
   }
 
@@ -296,30 +297,78 @@ class network {
     }
   }
 
-  async load(path, callback) {
-    let response = await fetch(path);
-    let data = await response.json();
+  save(path, options, callback) {
+    // Save the network to a file
+    let obj = [];
+    obj.push({
+      learningRate: this.learningRate,
+      activationFunction: this.activationFunction
+    });
 
-    this.learningRate = data[0].learningRate;
-    this.activationFunction = data[0].activationFunction;
+    this.forAllLayers((layernr) => {
+      let layer = [];
+      this.forAllNeuronsInLayer((layernr, neuronnr) => {
+        let current = this.getNeuron(layernr, neuronnr);
+        layer.push({
+          bias: current.bias,
+          weight: current.weight,
+          lastActivation: current.lastActivation
+        });
+      }, layernr);
+      obj.push(layer);
+    });
 
-    data.shift();
-
-    this.network = [];
-    for (let i in data) {
-      i = parseInt(i);
-      let _layer = [];
-      for (let j in data[i]) {
-        let _n = new neuron(i, j);
-        _n.weight = data[i][j].weight;
-        _n.bias = data[i][j].bias;
-        _n.lastActivation = data[i][j].lastActivation;
-        _layer.push(_n);
-      }
-      this.network.push(_layer);
+    if (options && options.forceOverwrite && options.forceOverwrite == true) {
+      fs.writeFile(path, JSON.stringify(obj), (error) => {
+        if (error) throw error;
+        if (callback) callback();
+      });
+    } else {
+      fs.writeFile(path, JSON.stringify(obj), {
+        flag: 'wx'
+      }, (error) => {
+        if (error && error.code == "EEXIST") {
+          console.warn("[MARVIN.JS WARNING] That file already exists. Try the forceOverwrite flag if you'd like to overwrite");
+        } else if (error) {
+          throw error;
+        }
+        if (callback) callback();
+      });
     }
+  }
 
-    if (callback) callback();
-    return;
+  load(path, callback) {
+    fs.readFile(path, 'utf8', (error, data) => {
+      if (error) throw error;
+
+      data = JSON.parse(data);
+
+      this.learningRate = data[0].learningRate;
+      this.activationFunction = data[0].activationFunction;
+
+      data.shift();
+
+      this.network = [];
+      for (let i in data) {
+        i = parseInt(i);
+        let _layer = [];
+        for (let j in data[i]) {
+          let _n = new neuron(i, j);
+          _n.weight = data[i][j].weight;
+          _n.bias = data[i][j].bias;
+          _n.lastActivation = data[i][j].lastActivation;
+          _layer.push(_n);
+        }
+        this.network.push(_layer);
+      }
+
+      if (callback) callback();
+    });
   }
 }
+
+
+// Export classes
+module.exports.neuron = neuron;
+module.exports.network = network;
+module.exports.activationFunctions = activationFunctions;

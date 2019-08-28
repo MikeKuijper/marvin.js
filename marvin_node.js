@@ -23,10 +23,12 @@ class neuron {
   setWeight(input, input2) {
     if (!input2) this.weight = input;
     else this.weight[input] = input2;
+    return this;
   }
 
   setBias(input) {
     this.bias = input;
+    return this;
   }
 
   addWeight(input) {
@@ -45,7 +47,7 @@ class network {
         this.activationFunction = activationFunctions.SIGMOID;
         this.learningRate = 1;
         this.network = [];
-        this.load(structure, lr)
+        this.load(structure, lr);
       } else {
         // Error handling
         let error = false;
@@ -92,7 +94,7 @@ class network {
     this.forAllNeurons((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
       n.log();
-    })
+    });
   }
 
   getNeuron(layernr, neuronnr) {
@@ -162,6 +164,7 @@ class network {
   setWeight(n, n2, num) {
     if (n2.layer - n.layer != 1) console.error("These neurons don't have a connection");
     this.network[n2.layer][n2.neuron].weight[n.neuron] = num;
+    return this;
   }
 
   train(input, expectedOutput) {
@@ -256,7 +259,7 @@ class network {
     let res = [];
     this.forAllNeuronsInLayer((layernr, neuronnr) => {
       res.push(parseFloat(this.getLayer(-1)[neuronnr].activation));
-    }, -1)
+    }, -1);
     return res;
   }
 
@@ -300,7 +303,7 @@ class network {
     obj.push({
       learningRate: this.learningRate,
       activationFunction: this.activationFunction
-    })
+    });
 
     this.forAllLayers((layernr) => {
       let layer = [];
@@ -324,7 +327,7 @@ class network {
         flag: 'wx'
       }, (error) => {
         if (error && error.code == "EEXIST") {
-          console.error("That file already exists. Try the forceOverwrite flag if you'd like to force it");
+          console.warn("[MARVIN.JS WARNING] That file already exists. Try the forceOverwrite flag if you'd like to overwrite");
         } else if (error) {
           throw error;
         }

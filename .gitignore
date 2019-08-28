@@ -1,5 +1,10 @@
 /node_modules
 /data
+/examples/textgeneration/data
+/examples/textgeneration/node_modules
+/examples/textgeneration/package-lock.json
+/examples/textgeneration/package.json
 class_*.js
 package-lock.json
 package.json
+index.js
