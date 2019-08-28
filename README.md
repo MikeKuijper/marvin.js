@@ -1,7 +1,7 @@
 ![Marvin.js](https://raw.githubusercontent.com/MikeKuijper/marvinjs/master/logos/logo.png)
 =======
 
-# What exactly is Marvin.js?
+# What is Marvin.js?
 Marvin.js is a fully open-source JavaScript neural network library. You can use it to create neural network implementations with ease!
 
 # What is a neural network?
