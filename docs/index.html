@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
+  <title>Marvin.js</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel="shortcut icon" type="image/png" href="./media/favicon.png" />
+</head>
+
+<body>
+  <script>
+    var bgImageArray = ["bg1.png", "bg2.png", "bg3.png"],
+      base = "./media/",
+      secs = 8;
+    bgImageArray.forEach(function(img) {
+      new Image().src = base + img;
+      // caches images, avoiding white flash between background replacements
+    });
+
+    function backgroundSequence() {
+      window.clearTimeout();
+      var k = 0;
+      for (i = 0; i < bgImageArray.length; i++) {
+        setTimeout(function() {
+          document.getElementById('header').style.background = "url(" + base + bgImageArray[k] + ") no-repeat center center fixed";
+          document.getElementById('header').style.backgroundSize = "cover";
+          if ((k + 1) === bgImageArray.length) {
+            setTimeout(function() {
+              backgroundSequence()
+            }, (secs * 1000))
+          } else {
+            k++;
+          }
+        }, (secs * 1000) * i)
+      }
+    }
+    backgroundSequence();
+  </script>
+  <section id="header" class="header">
+    <img src="./media/logo.png" style="height: 200px; margin-bottom: 0px"></img>
+    <h2 class="subtitle">by Mike Kuijper</h2>
+    <button class="menuButton" onclick="window.location.href='https://github.com/MikeKuijper/marvin.js'" style="float: center; width:190px">Visit GitHub</button>
+    <button class="menuButton" onclick="window.location.href='https://www.npmjs.com/package/@mikekuijper/marvin.js'" style="float: center; width:190px">Visit NPM</button>
+  </section>
+
+  <section class="contents">
+    <div>
+      <br>
+      <h1 class="title">Neural Networks without the headache</h1>
+      <br>
+      <h>
+        I know, Neural Networks are complicated and confusing. That's why Marvin.js was created from the ground up to be as intuitive as possible. That saves you some sleepless nights. You don't have to spend hours just to understand the basics of
+        Neural Networks. If you know a little JavaScript, you know enough to use it.
+        <br>
+        <br>
+        Marvin.js is completely open-source and free to use.
+        <!-- <br>
+        <br>
+        Maecenas vel dolor accumsan augue dignissim ultricies. Morbi pharetra tincidunt laoreet. Nam sagittis tortor eu neque vehicula, sit amet pharetra mauris fermentum. Proin aliquam ante ut ipsum hendrerit, sit amet hendrerit sem vestibulum.
+        Aenean vel ultrices metus. Donec sit amet ipsum sit amet risus auctor vulputate. Curabitur vitae massa ex. Quisque nisi dolor, egestas at elementum at, dignissim a purus. Etiam egestas eleifend leo nec dictum. In id elit nec nunc pharetra
+        sagittis et id nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam pellentesque nisl erat, sed posuere mauris mollis in. Sed ac diam et libero fringilla ornare. Etiam egestas enim id sem
+        ultrices gravida. Nullam a purus sem. Quisque maximus nunc et leo vehicula, at euismod turpis tincidunt.
+        <br>
+        <br>
+        Cras tincidunt tortor quam. Ut et orci id tortor commodo blandit. Pellentesque eget dui ornare, malesuada enim vel, cursus nisi. Donec imperdiet quam sit amet iaculis accumsan. In condimentum malesuada posuere. Sed id justo blandit, posuere
+        risus sit amet, mollis ipsum. In eros nunc, ultricies ac mi at, suscipit vehicula augue. Aenean ultrices iaculis mauris.
+        <br>
+        <br>
+        Phasellus nec est quis massa placerat porttitor vitae vitae nulla. Cras orci velit, iaculis a massa a, pharetra tempor erat. Nam vel diam mauris. Proin quam velit, ornare et finibus elementum, viverra vitae eros. Ut et ante at nulla bibendum
+        lacinia. Cras vitae aliquam nisi. Vestibulum nec nibh et velit mollis vulputate. Aliquam nec nibh id turpis vulputate molestie. Proin turpis enim, finibus nec ligula id, posuere molestie sapien. Nam facilisis maximus mattis. Pellentesque
+        pellentesque luctus nunc, ut ultrices dui pulvinar sit amet. Cras egestas interdum elit, eu varius lacus viverra quis. Sed pulvinar erat ut fringilla efficitur.
+        <br>
+        <br>
+        <h1 class="title">Consectetur adipiscing elit</h1>
+        <br>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nec est urna. Mauris at justo tempor, fermentum tellus at, venenatis neque. Praesent eu velit sed ex mollis facilisis. Curabitur sit amet vulputate orci, eget congue justo. Ut
+        vehicula orci sed dolor efficitur, sed lobortis leo sodales. Vestibulum ac sapien massa. Ut placerat ac mauris at blandit. Phasellus rhoncus tempor nulla et venenatis. Aenean pellentesque sollicitudin sapien eget facilisis. Nam et euismod
+        diam. Cras fringilla, diam eu blandit luctus, libero eros posuere dui, at commodo quam neque ac orci. Cras nec felis vulputate, rhoncus tellus vel, pretium risus.
+        <br>
+        <br>
+        Proin justo mi, semper eu dolor at, tristique laoreet neque. Nulla tristique porttitor risus ac suscipit. Donec vel congue felis. Nam a erat eget felis scelerisque ornare eget vitae mi. Ut vulputate, nulla vel suscipit finibus, lectus ante
+        aliquet massa, ac sagittis quam lacus vitae ex. Nunc eu tortor eget sapien cursus tincidunt. Suspendisse et mauris id erat maximus commodo vitae ut dui. Suspendisse molestie interdum blandit. Proin ac neque ligula. Nulla sagittis lacus
+        mauris,
+        porttitor lacinia dui ullamcorper ut. Vivamus pellentesque elit in ullamcorper dictum. Duis ornare orci vitae nisi egestas, sit amet interdum lacus ultrices. Integer sagittis a erat sit amet bibendum. Proin in auctor enim, eget pharetra
+        metus.
+        Fusce mattis finibus velit, eget rhoncus orci elementum sed.
+        <br>
+        <br>
+        Maecenas vel dolor accumsan augue dignissim ultricies. Morbi pharetra tincidunt laoreet. Nam sagittis tortor eu neque vehicula, sit amet pharetra mauris fermentum. Proin aliquam ante ut ipsum hendrerit, sit amet hendrerit sem vestibulum.
+        Aenean vel ultrices metus. Donec sit amet ipsum sit amet risus auctor vulputate. Curabitur vitae massa ex. Quisque nisi dolor, egestas at elementum at, dignissim a purus. Etiam egestas eleifend leo nec dictum. In id elit nec nunc pharetra
+        sagittis et id nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nullam pellentesque nisl erat, sed posuere mauris mollis in. Sed ac diam et libero fringilla ornare. Etiam egestas enim id sem
+        ultrices gravida. Nullam a purus sem. Quisque maximus nunc et leo vehicula, at euismod turpis tincidunt.
+        <br>
+        <br>
+        Cras tincidunt tortor quam. Ut et orci id tortor commodo blandit. Pellentesque eget dui ornare, malesuada enim vel, cursus nisi. Donec imperdiet quam sit amet iaculis accumsan. In condimentum malesuada posuere. Sed id justo blandit, posuere
+        risus sit amet, mollis ipsum. In eros nunc, ultricies ac mi at, suscipit vehicula augue. Aenean ultrices iaculis mauris.
+        <br>
+        <br>
+        Phasellus nec est quis massa placerat porttitor vitae vitae nulla. Cras orci velit, iaculis a massa a, pharetra tempor erat. Nam vel diam mauris. Proin quam velit, ornare et finibus elementum, viverra vitae eros. Ut et ante at nulla bibendum
+        lacinia. Cras vitae aliquam nisi. Vestibulum nec nibh et velit mollis vulputate. Aliquam nec nibh id turpis vulputate molestie. Proin turpis enim, finibus nec ligula id, posuere molestie sapien. Nam facilisis maximus mattis. Pellentesque
+        pellentesque luctus nunc, ut ultrices dui pulvinar sit amet. Cras egestas interdum elit, eu varius lacus viverra quis. Sed pulvinar erat ut fringilla efficitur. -->
+      </h>
+
+      <br>
+      <br>
+      <br>
+
+      <div class="row">
+        <div class="column">
+          <img src="./media/icon1.png" style="height: 192px;"></img>
+          <h1>Completely open-source</h1>
+        </div>
+        <div class="column">
+          <img src="./media/icon2.png" style="height: 192px;"></img>
+          <h1>Easy to use</h1>
+        </div>
+        <div class="column">
+          <img src="./media/icon3.png" style="height: 192px;"></img>
+          <h1>Very stable</h1>
+        </div>
+      </div>
+      <!-- <br>
+      <img src="https://media.giphy.com/media/ibI6pMtGf5tnO/giphy.gif"></img> -->
+    </div>
+
+    <br>
+  </section>
+  <footer>
+    <h2 class="subtitle" style="text-align: center">©Mike Kuijper 2019</h2>
+  </footer>
+</body>
+
+</html>
