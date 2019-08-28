@@ -73,7 +73,7 @@ Documentation
 # An example
 The goal of this example neural network is to copy the input layer.
 So, [1, 0, 0] in should mean [1, 0, 0] out.
-```JavaScript
+```javascript
 const marvin = require("./marvin_node.js");
 
 let iterations = 1000;
