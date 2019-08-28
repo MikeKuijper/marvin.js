@@ -17,6 +17,7 @@ Documentation
 ======
 
 ## Classes
+
 | Class | Function |
 | ------- | ------- |
 | network | Create a new neural network with a set amount of layers and neurons |
@@ -40,6 +41,7 @@ Documentation
 ```
 
 ## network Methods
+
 | Method | What it does |
 | ------- | ------- |
 | network.log() | Logs the neural network; Useful for debugging |
@@ -58,6 +60,7 @@ Documentation
 | network.load(path, [callbackFunction]) | Load a network from a file. (Optional): Supply a callback function that gets run after the loading process is done |
 
 ## neuron Methods
+
 | Method | What it does |
 | ----- | -------- |
 | neuron.setWeight(input) | Sets the weights of the neuron equal to the input. Input must be an array of the length of the previous layer  |
