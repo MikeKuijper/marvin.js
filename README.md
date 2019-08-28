@@ -74,7 +74,6 @@ Documentation
 The goal of this example neural network is to copy the input layer.
 So, [1, 0, 0] in should mean [1, 0, 0] out.
 ```JavaScript
-
 const marvin = require("./marvin_node.js");
 
 let iterations = 1000;
@@ -101,7 +100,6 @@ for (let i = 1; i <= iterations; i++) {
 console.log(`In: [1, 0, 0]; Expected out: [1, 0, 0]; Out: [${n.feed([1, 0, 0])}]`);
 console.log(`In: [0, 1, 0]; Expected out: [0, 1, 0]; Out: [${n.feed([0, 1, 0])}]`);
 console.log(`In: [0, 0, 1]; Expected out: [0, 0, 1]; Out: [${n.feed([0, 0, 1])}]`);
-
 ```
 
 ![Marvin gif from A Hitchhiker's Guide To The Galaxy](https://media.giphy.com/media/ibI6pMtGf5tnO/giphy.gif)
