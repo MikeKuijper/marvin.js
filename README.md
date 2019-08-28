@@ -23,7 +23,7 @@ Documentation
 
 ## Classes
 | Class | Function |
-| ----- | -------- |
+| ------- | ------- |
 | network | Create a new neural network with a set amount of layers and neurons |
 | neuron | It's used by the code of the network, I can't really find a reason to use it. |
 
@@ -46,7 +46,7 @@ Documentation
 
 ## network Methods
 | Method | What it does |
-| ----- | -------- |
+| ------- | ------- |
 | network.log() | Logs the neural network; Useful for debugging |
 | network.getNeuron(layerNumber, neuronNumber) | Returns the neuron object at neuronNumber in layerNumber |
 | network.getLayer(layerNumber) | Returns an array of neurons from the specified layer |
