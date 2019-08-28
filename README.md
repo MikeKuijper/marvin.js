@@ -1,4 +1,4 @@
-Marvin.js
+![Marvin.js](https://raw.githubusercontent.com/MikeKuijper/marvinjs/master/logos/logo.png)
 =======
 
 ![Marvin gif from A Hitchhiker's Guide To The Galaxy](https://media.giphy.com/media/ibI6pMtGf5tnO/giphy.gif)
@@ -14,9 +14,6 @@ A neural network aims to achieve Artificial Intelligence (AI) by creating a netw
 3. The output layer is (surprise, surprise) the layer that gets outputted.
 4. Training a network means adjusting the function in order to make the output more like the desired.
 5. The cost of network is a value to reflect how wrong a network is _on average_.
-
-# Marvin.js? You've got to be kidding me!
-*__Nope__*
 
 Documentation
 ======
