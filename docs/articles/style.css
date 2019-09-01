@@ -47,7 +47,7 @@ form {
   background-image: url("./media/bg1.png");
   background-size: cover;
   background-position: center;
-  /* transition: 5s; */
+  transition: 5s;
   min-height: 100%;
 }
 
