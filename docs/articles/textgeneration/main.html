@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
+  <title>Marvin.js</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel="shortcut icon" type="image/png" href="./media/favicon.png" />
+  <script>
+    var bgImageArray = ["bg1.png", "bg2.png", "bg3.png"],
+      base = "./media/",
+      secs = 8;
+    bgImageArray.forEach(function(img) {
+      new Image().src = base + img;
+      // caches images, avoiding white flash between background replacements
+    });
+
+    function backgroundSequence() {
+      window.clearTimeout();
+      var k = 0;
+      for (i = 0; i < bgImageArray.length; i++) {
+        setTimeout(function() {
+          document.getElementById('header').style.background = "url(" + base + bgImageArray[k] + ") no-repeat center center fixed";
+          document.getElementById('header').style.backgroundSize = "cover";
+          if ((k + 1) === bgImageArray.length) {
+            setTimeout(function() {
+              backgroundSequence()
+            }, (secs * 1000))
+          } else {
+            k++;
+          }
+        }, (secs * 1000) * i)
+      }
+    }
+    backgroundSequence();
+  </script>
+</head>
+
+<body>
+  <section id="header" class="header">
+    <div class="row" style="text-align: left;">
+      <div class="column" style="text-align: left; justify-content: left; align-items: center;">
+        <a href="">
+          <img src="./media/logo.png" style="height: 100px; margin-bottom: 0px; margin-top: 0px; float: left;"></img>
+        </a>
+      </div>
+      <button class="menuButton" onclick="window.location.href='https://mikekuijper.github.io/marvin.js/'" style="float: right; width:190px; margin-top: 30px; margin-left: 36px; width: auto; height: auto">HOME</button>
+      <button class="menuButton" onclick="window.location.href='https://mikekuijper.github.io/marvin.js/articles'" style="float: right; width:190px; margin-top: 30px; margin-left: 36px; width: auto; height: auto">ARTICLES</button>
+      <button class="menuButton" onclick="window.location.href='https://github.com/MikeKuijper/marvin.js'" style="float: right; width:190px; margin-top: 30px; margin-left: 36px; width: auto; height: auto">VISIT GITHUB</button>
+      <button class="menuButton" onclick="window.location.href='https://www.npmjs.com/package/@mikekuijper/marvin.js'" style="float: right; width:190px; margin-top: 30px; margin-left: 36px; width: auto; height: auto">VISIT NPM</button>
+    </div>
+    <hr>
+    <br>
+    <div class="row">
+      <div class="column">
+        <img src="./media/wallpaper.png" style="max-height: 512px; border: 8px solid #ffffff; border-radius: 16px"></img>
+        <br>
+        <h style="color: #ffffff; font-size: 18px">September 1st 2019</h>
+      </div>
+      <div class="column" style="text-align: left;">
+        <h2 class="title" style="color: #ffffff">Neural Network Text Generation</h2>
+        <h style="color: #ffffff; font-size: 24px">
+          Ever since I started working on Marvin.js, it has been a goal to create an AI that was capable of generating human readable (and understandable) text. This is the result of that project. It took some time, but here it is! I am quite sure
+          there are better, faster, and easier methods, but this was the goal and it turned out better than I expected.
+        </h>
+      </div>
+    </div>
+  </section>
+
+  <section class="contents">
+    <div>
+      <br>
+      <h>
+        <h1 class="title">Why I made it</h1>
+        <br>
+        It has always fascinated me how computers would replicate human language. Years ago I thought they might just program the grammar of a language into the computer. But, as I was working on Marvin.js, I decided I wanted to know. So, I searched
+        on the internet and, eventually, found a way how it could be done.
+        <br>
+        <br>
+        <br>
+        <h1 class="title">How it works</h1>
+        <br>
+        The network trains by first converting all the characters from the input text to indeces from a character list, since the network can only accept a numerical input. Then, the network cycles through every character and it looks at a certain amount of characters before it. The (indeces of the) characters before the current character are the input for the Neural Network, while the desired output is the current character. The network then predicts what character should be next. The result is compared to the desired result and the network is altered accordingly. It then cycles to the next character and repeats the process. It does this until the entire input text has
+        been trained. It does this cycle thousands of times, which can take a long time. When network has cycled enough times, the network is able to recreate the input text. And, if the input text was sufficiently large, it can generate unique sentences that weren't in the original file. Also, it learns our grammar: capital letters, periods, commas, etc.
+        <br>
+        <figure>
+          <img src="./media/anim.gif" style="max-width: 100%; margin-top: 24px; margin-bottom: 24px;"></gif>
+          <div style="text-align: right;">
+            <div style="text-align: right; float: right; max-width: 50%">
+              <figcaption>An example on how the network gets its input and output for training. Here, it trained the word 'brown'.</figcaption>
+            </div>
+          </div>
+          <br>
+        </figure>
+        <br>
+        <br>
+
+        <h1 class="title">Can I try it?</h1>
+        <br>
+        The software is still in development. Though, there already is an early version that is capable of learning to generate text. You can visit the GitHub repository and it's listed under "examples".
+      </h>
+  </section>
+  <footer>
+    <h2 class="subtitle" style="text-align: center;">©Mike Kuijper 2019</h2>
+  </footer>
+</body>
+
+</html>

@@ -1,11 +1,13 @@
 html {
   font-family: futura;
   -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
-  margin: 0
+  margin: 0;
+  height: 100%;
 }
 
 h {
@@ -45,7 +47,8 @@ form {
   background-image: url("./media/bg1.png");
   background-size: cover;
   background-position: center;
-  transition: 5s;
+  /* transition: 5s; */
+  min-height: 100%;
 }
 
 .title {
@@ -63,22 +66,6 @@ form {
 
 .contents {
   word-wrap: break-word;
-}
-
-.headerButton {
-  cursor: pointer;
-  padding: 9px 45px;
-  align-content: center;
-  background-color: transparent;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 16px;
-  border-radius: 16px;
-}
-
-.headerButton:hover {
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .menuButton {
@@ -121,13 +108,12 @@ hr {
   border: 1px solid #b7b7b7;
   -webkit-border-radius: 0px;
   border-radius: 0px;
-
   -o-text-overflow: clip;
   text-overflow: clip;
-  background: rgba(252,252,252,1);
-  -webkit-box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.2) inset;
-  box-shadow: 2px 2px 2px 0 rgba(0,0,0,0.2) inset;
-  text-shadow: 1px 1px 0 rgba(255,255,255,0.66) ;
+  background: rgba(252, 252, 252, 1);
+  -webkit-box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2) inset;
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.2) inset;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.66);
   -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
   -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
   -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
@@ -135,7 +121,7 @@ hr {
 }
 
 .container {
-  display:block;
+  display: block;
   height: 800px;
   background-image: url("media/wallpaper2.png");
   background-position: center;
