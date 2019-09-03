@@ -322,4 +322,13 @@ class network {
     if (callback) callback();
     return;
   }
+
+  getParamCount() {
+    let params = 0;
+    this.forAllLayers((i) => {
+      params += this.network[i].length;
+      if (i != 0) params += this.network[i].length * this.network[i - 1].length;
+    });
+    return params;
+  }
 }

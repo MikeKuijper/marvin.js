@@ -118,7 +118,7 @@ let n;
 function pretrain() {
   console.log("[MARVIN] Starting training...");
   if (!trainOptions.continuefrom) {
-    n = new marvin.network([trainOptions.bufferlength, 50, 50, charlist.length], trainOptions.learningrate);
+    n = new marvin.network([trainOptions.bufferlength, 50, 50, 50, 50, 50, charlist.length], trainOptions.learningrate);
     console.log("[MARVIN] Created network");
     train();
   } else {

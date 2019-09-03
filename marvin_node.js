@@ -98,6 +98,13 @@ class network {
   }
 
   getNeuron(layernr, neuronnr) {
+    if (layernr && neuronnr) {
+      if (typeof layernr != "number" || typeof neuronnr != "number") {
+        console.error("The getNeuron function requires two numbers as arguments. See documentation for more details.");
+      }
+    } else {
+      console.error("The getNeuron function requires two arguments. See documentation for more details.");
+    }
     layernr = parseInt(layernr);
     neuronnr = parseInt(neuronnr);
     let error = false;
@@ -272,7 +279,7 @@ class network {
         return 2 / (1 + Math.pow(Math.E, -2 * input));
         break;
       case activationFunctions.RELU:
-        Math.max(input, 0);
+        return Math.max(input, 0);
         break;
       default:
         console.error("Invalid normalizing method");
@@ -362,6 +369,15 @@ class network {
 
       if (callback) callback();
     });
+  }
+
+  getParamCount() {
+    let params = 0;
+    this.forAllLayers((i) => {
+      params += this.network[i].length;
+      if (i != 0) params += this.network[i].length * this.network[i - 1].length;
+    });
+    return params;
   }
 }
 
