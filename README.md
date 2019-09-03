@@ -59,7 +59,7 @@ Documentation
 | **network.deriveNormalize(number)** | Reverts the input back to a normal number using the activation function specified in network.activationFunction |
 | **network.save(path)** | Save the network to a file so that you can use it again later |
 | **network.load(path, [callbackFunction])** | Load a network from a file. (Optional): Supply a callback function that gets run after the loading process is done |
-| **network.getParamCount** | Returns the amount of parameters in the network |
+| **network.getParamCount()** | Returns the amount of parameters in the network |
 
 ## neuron Methods
 
