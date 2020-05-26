@@ -16,8 +16,10 @@ program
   .command('train <textFilePath> <targetPath>')
   .option('-i, --iterations <iterations>', 'The amount of times the script will cycle through the input file', 10000)
   .option('-b, --bufferlength <bufferlength>', 'The amount of characters the network will look back in order to generate the next character', 12)
-  .option('-l, --learningrate <learningrate>', 'A scalar that changes the speed of the learning of a network', 0.01)
+  .option('-r, --learningrate <learningrate>', 'A scalar that changes the speed of the learning of a network', 0.01)
   .option('-c, --continuefrom <continuepath>', "If you've run this script before, you can continue training the same network, define the path to the output file here")
+  .option('-l, --hiddenlayers <hiddenlayers>', "Change the amount of hidden layers in the created neural network", 5)
+  .option('-n, --hiddenlayerneurons <neurons>', "Change the amount of neurons per hidden layer", 100)
   .alias('t')
   .description('Train a network with a text file')
   .action((_textFilePath, _targetPath, options) => {
@@ -37,6 +39,9 @@ program
     options.iterations = parseInt(options.iterations);
     options.bufferlength = parseInt(options.bufferlength);
     options.learningrate = parseFloat(options.learningrate);
+    options.hiddenlayers = parseInt(options.hiddenlayers);
+    options.hiddenlayerneurons = parseInt(options.hiddenlayerneurons);
+
 
     fs.readFile(_textFilePath, "utf-8", (error, data) => {
       trainData = data.split("");
@@ -97,7 +102,6 @@ function generate(input, network, chars) {
 
     inputArray.push(maxValueIndex);
     inputArray.shift();
-    // console.log(indexToLetter(maxValueIndex));
   }
   console.log(`[MARVIN] OUTPUT:\n   "${output.join("")}"`);
   return input + output.join("");
@@ -115,28 +119,34 @@ function check(d, c) {
   }
 }
 let n;
+
 function pretrain() {
   console.log("[MARVIN] Starting training...");
   if (!trainOptions.continuefrom) {
-    n = new marvin.network([trainOptions.bufferlength, 50, 50, 50, 50, 50, charlist.length], trainOptions.learningrate);
-    console.log("[MARVIN] Created network");
+    let inputArray = [trainOptions.bufferlength];
+    for (let i = 0; i < trainOptions.hiddenlayers; i++) {
+      inputArray.push(trainOptions.hiddenlayerneurons);
+    }
+    inputArray.push(charlist.length);
+
+    n = new marvin.network(inputArray, trainOptions.learningrate);
+    console.log(`[MARVIN] Created network of ${n.getParamCount()} parameters`);
     train();
   } else {
     n = new marvin.network();
     n.load(trainOptions.continuefrom, train);
+    // console.log(`[MARVIN] Network has ${n.getParamCount()} parameters`);
   }
 }
+
 function train() {
-  if (trainOptions.continuePath) console.log(`[MARVIN] Loaded network from ${trainOptions.continuePath}`);
+  if (trainOptions.continuePath) console.log(`[MARVIN] Loaded network from ${trainOptions.continuePath} with ${n.getParamCount()} parameters`);
   n.learningRate = trainOptions.learningrate;
   for (let i = 0; i < trainOptions.iterations; i++) {
     console.log(`[MARVIN] Started training epoch ${i + 1}/${trainOptions.iterations}`);
 
     let cost = [];
     for (let j = 2 * trainOptions.bufferlength; j < trainData.length + trainOptions.bufferlength - 1; j++) {
-      // console.log(`[MARVIN]     Started training subepoch ${j}/${trainData.length + trainOptions.bufferlength - 1}`);
-      // console.log(`[MARVIN]     Started training subepoch ${j - 2 * trainOptions.bufferlength + 1}/${trainData.length}`);
-
       let input = [];
       let output = []
       let outputIndex = letterToIndex(trainData[j - trainOptions.bufferlength]);
@@ -159,7 +169,6 @@ function train() {
     console.log(`[MARVIN] Finished training epoch ${i + 1}/${trainOptions.iterations} (${(((i + 1) / trainOptions.iterations) * 100).toFixed(2)}%) | Average cost: ${averageCost.toFixed(4)}`);
   }
   console.log(`[MARVIN] Done training`);
-  // console.log(generate.generate(inputText, n));
 
   console.log(`[MARVIN] Saving network to ${targetPath}`);
   n.save(targetPath, {}, () => {
@@ -175,6 +184,7 @@ function letterToIndex(letter) {
     return element == letter;
   });
 }
+
 function indexToLetter(index) {
   return charlist[index];
 }

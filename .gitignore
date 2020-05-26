@@ -8,3 +8,5 @@ class_*.js
 package-lock.json
 package.json
 index.js
+examples/textgeneration/data2-train.bat
+examples/textgeneration/temp.js

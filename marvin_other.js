@@ -119,7 +119,7 @@ class network {
     return this.network[layernr];
   }
 
-  forAllLayers(f, backwards) {
+  forEachLayer(f, backwards) {
     if (!backwards) {
       for (let i in this.network) {
         f(parseInt(i));
@@ -131,7 +131,7 @@ class network {
     }
   }
 
-  forAllNeurons(f, backwards) {
+  forEachNeuron(f, backwards) {
     if (!backwards) {
       for (let i in this.network) {
         for (let j in this.network[i]) {
@@ -147,7 +147,7 @@ class network {
     }
   }
 
-  forAllNeuronsInLayer(f, layernr) {
+  forEachNeuronInLayer(f, layernr) {
     if (layernr > this.network.length - 1) console.error("That layer doesn't exist");
     if (layernr < 0) layernr = this.network.length + layernr;
     for (let i in this.network[layernr]) {
@@ -171,7 +171,7 @@ class network {
     this.globalError = 0;
     let cost = 0;
 
-    this.forAllNeuronsInLayer((layernr, neuronnr) => {
+    this.forEachNeuronInLayer((layernr, neuronnr) => {
       let n = this.getNeuron(layernr, neuronnr);
       let grad = this.deriveNormalize(n.activation);
       let error = expectedOutput[neuronnr] - n.activation;
@@ -181,7 +181,7 @@ class network {
     }, -1);
     this.cost = cost;
 
-    this.forAllNeurons((layernr, neuronnr) => {
+    this.forEachNeuron((layernr, neuronnr) => {
       let currentNeuron = this.getNeuron(layernr, neuronnr);
       if (layernr <= this.network.length - 2) {
         let nextLayer = this.getLayer(layernr + 1);
@@ -232,31 +232,29 @@ class network {
       console.error("Please check if the input is an array");
       error = true;
     }
-    if (error) process.exit();
 
     //Set input layer
-    for (let i in this.getLayer(0)) {
-      let current = this.getLayer(0)[i];
-      current.activation = input[i];
-    }
+    this.forEachNeuronInLayer((i, j) => {
+      this.getNeuron(i, j).activation = input[j];
+    }, 0);
 
-    this.forAllNeurons((layernr, neuronnr) => {
+    this.forEachNeuron((layernr, neuronnr) => {
       if (layernr != 0) {
         let current = this.getNeuron(layernr, neuronnr);
+        let prevLayer = this.getLayer(layernr - 1);
 
         let total = 0;
         for (let l in current.weight) {
-          total += current.weight[l] * this.getLayer(layernr - 1)[l].activation;
+          total += current.weight[l] * prevLayer[l].activation;
         }
         total += parseFloat(current.bias);
-        current.lastActivation = current.activation;
         current.activation = this.normalize(total);
       }
     });
 
     // Format output
     let res = [];
-    this.forAllNeuronsInLayer((layernr, neuronnr) => {
+    this.forEachNeuronInLayer((layernr, neuronnr) => {
       res.push(parseFloat(this.getLayer(-1)[neuronnr].activation));
     }, -1)
     return res;
@@ -271,11 +269,13 @@ class network {
         return 2 / (1 + Math.pow(Math.E, -2 * input));
         break;
       case activationFunctions.RELU:
-        Math.max(input, 0);
+        return Math.max(input, 0);
+        break;
+      case activationFunctions.NONE:
+        return input;
         break;
       default:
-        console.error("Invalid normalizing method");
-        process.exit();
+        console.error("Invalid activation function");
     }
   }
 
@@ -290,8 +290,11 @@ class network {
       case activationFunctions.RELU:
         return input;
         break;
+      case activationFunctions.NONE:
+        return input;
+        break;
       default:
-        console.error("Invalid normalizing method");
+        console.error("Invalid activation function");
         process.exit();
     }
   }
@@ -325,10 +328,107 @@ class network {
 
   getParamCount() {
     let params = 0;
-    this.forAllLayers((i) => {
+    this.forEachLayer((i) => {
       params += this.network[i].length;
       if (i != 0) params += this.network[i].length * this.network[i - 1].length;
     });
     return params;
+  }
+}
+
+class population {
+  constructor(structure, size, mutationRate, percentile) {
+    this.population = [];
+    this.generation = 0;
+    this.network = 0;
+    this.structure = structure;
+    this.maxMutation = 1;
+
+    let generation = [];
+    for (let i = 0; i < size; i++) {
+      let n = new network(structure, 0);
+      generation.push({
+        network: n,
+        id: i,
+        fitness: null
+      });
+    }
+    this.size = size;
+    this.population = generation;
+    this.mutationRate = mutationRate;
+    this.percentile = percentile;
+  }
+
+  getCurrentGeneration() {
+    return this.population;
+  }
+
+  getCurrentNetwork() {
+    return this.population[this.network].network;
+  }
+
+  cycle() {
+    this.network++;
+    if (this.network >= this.size) {
+      this.nextGeneration();
+      this.network = 0;
+    }
+  }
+
+  selectBestNetwork() {
+    let sorted = this.population.sort(function (a, b) {
+      return b.fitness - a.fitness;
+    });
+    this.network = sorted[0].id;
+  }
+
+  nextGeneration() {
+    let sorted = this.population.sort(function (a, b) {
+      return b.fitness - a.fitness;
+    });
+    let highestIndex = Math.floor(sorted.length * this.percentile);
+    sorted.splice(highestIndex, sorted.length - highestIndex + 1)
+
+    let prevGeneration = this.population;
+    let generation = [];
+    this.population = [];
+    for (let i = 0; i < this.size; i++) {
+      let j = floor(i / (this.size / sorted.length));
+
+      let net = new network(this.structure, 0);
+      let tempNet = [];
+      let layer = [];
+      sorted[j].network.forEachNeuron((layernr, neuronnr) => {
+        let parentNet = sorted[j].network;
+        let n = new neuron(layernr, neuronnr);
+        n.activation = parentNet.network[layernr][neuronnr].activation;
+
+        if (Math.random() <= this.mutationRate && this.network != 0) {
+          n.bias = Math.random() * this.maxMutation * 2 - this.maxMutation;
+        } else {
+          n.bias = parentNet.network[layernr][neuronnr].bias;
+        }
+        for (let k in parentNet.network[layernr][neuronnr].weight) {
+          if (Math.random() <= this.mutationRate && this.network != 0) {
+            n.weight.push(Math.random() * this.maxMutation * 2 - this.maxMutation);
+          } else {
+            n.weight.push(parentNet.network[layernr][neuronnr].weight[k]);
+          }
+        }
+        layer.push(n);
+        if (neuronnr == this.structure[layernr] - 1) {
+          tempNet.push(layer);
+          layer = [];
+        }
+      });
+      net.network = [...tempNet];
+
+      this.population.push({
+        network: net,
+        id: i,
+        fitness: null
+      })
+    }
+    this.generation++;
   }
 }
